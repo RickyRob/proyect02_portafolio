@@ -31,7 +31,6 @@ def data(lista, inicio:str, fin:str):
     df.dropna(inplace=True)
     df = df.rename(columns={'Adj Close':lista[0]})
     lista.pop(0)
-    print(lista)
     for i in lista:
         name = i
         i = yf.download(i,start=inicio,end=fin)
@@ -63,15 +62,19 @@ def returns(df):
     sheet_estr1.range('A1').value = df_returns
 
     l = len(df_returns.columns)
-    print(l)
     sheet_estr1[1,l+2].value = df_returns.describe()
-    medias = pd.DataFrame(df_returns.mean(axis=0)) # almacenando las medias en esta variable
-    medias = medias.rename(columns={0:'r_med'})
+    medias = df_returns.mean(axis=0).tolist() # almacenando las medias en esta variable
     desv = pd.DataFrame(df_returns.std(axis=0)) # almacenando las desviaciones estandar en esta variable
-    desv = desv.rename(columns={0:'r_desv'})
-    estad = medias.join(desv,how='outer') # este es el dataframe de las medias y volatilidades de los rendimientos
-    return df_returns, estad
+    df_ret_med = df_returns - medias
+    return df_returns, df_ret_med, desv
 
     
+def varcovar(df):
+    df_t = df.transpose()
+    varcov = df_t.dot(df)
+    varcov = varcov/(len(df)-1)
+    return varcov
 
-
+def matcor(df,desv):
+    cor = df/(desv.dot(desv.transpose()))
+    return cor

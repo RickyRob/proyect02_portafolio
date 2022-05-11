@@ -12,7 +12,14 @@ df = data(lista,inicio,fin)
 
 con_excel(df)
 
-rendimientos, estad = returns(df)
+rend, rend_med, desv = returns(df)
 
-#print(rendimientos)
+print('Varianza Covarianza')
+varcov = varcovar(rend_med)
+print(varcov)
+
+print('Correlación')
+cor = matcor(varcov,desv)
+print(cor)
+
 
