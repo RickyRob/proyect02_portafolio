@@ -12,7 +12,7 @@ df = data(lista,inicio,fin)
 
 con_excel(df)
 
-rend, rend_med, desv = returns(df)
+rend, rend_med, desv, medias = returns(df)
 
 print('Varianza Covarianza')
 varcov = varcovar(rend_med)
@@ -21,5 +21,8 @@ print(varcov)
 print('Correlación')
 cor = matcor(varcov,desv)
 print(cor)
+
+#optimizador(medias, desv, varcov)
+simulaciones(medias, desv, varcov)
 
 
