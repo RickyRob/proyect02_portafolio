@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import xlwings as xw
 from datetime import timedelta
 from ortools.linear_solver import pywraplp
+import scipy.optimize as sco
 
 
 
@@ -143,12 +144,12 @@ def optimizador(medias, desv, varcov):
     #print(std_p)
 
 '''
-def simulaciones(medias, desv, varcov):
+def simulaciones(medias, desv, varcov,n):
     ret_p = []
     vol_p = []
 
     for i in range(3000):
-        pesos = np.random.random(3)
+        pesos = np.random.random(n)
         pesos /= np.sum(pesos)
         ret_p.append(np.sum(medias*pesos)*252)
         vol_p.append(np.sqrt(np.dot(pesos.T,np.dot(varcov*252,pesos))))
@@ -156,15 +157,30 @@ def simulaciones(medias, desv, varcov):
     ret_p = np.array(ret_p)
     vol_p = np.array(vol_p)
  
-    plt.figure(figsize=(16,8))
+    plt.figure(figsize=(10,7))
     plt.scatter(vol_p,ret_p, c=ret_p/vol_p, marker='o')
     plt.grid(True)
+    plt.xlabel('Volatilidad')
+    plt.ylabel('Retornos')
     plt.colorbar(cmap='plasma',label='Shape Ratio')
     plt.show()
 
 
-    print(ret_p[:5])
-    print(vol_p[:5])
+    #print(ret_p[:5])
+    #print(vol_p[:5])
+    print('Aqui termina el grafico')
+    #return pesos
 
-def optimizador(medias, desv, varcov):
-    return None
+def pstats(pesos,medias,varcov):
+    pesos = np.array(pesos)
+    #pesos = np.random.random(n)
+    #pesos /= np.sum(pesos)
+    ret_p = np.sum(medias*pesos)*252
+    vol_p = np.sqrt(np.dot(pesos.T,np.dot(varcov*252,pesos)))
+    return np.array(ret_p/vol_p)
+
+def optimizador(pesos,medias,varcov):
+    
+    return -1*pstats(pesos,medias,varcov)
+
+
