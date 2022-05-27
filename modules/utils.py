@@ -14,7 +14,7 @@ import scipy.optimize as sco
 def bienvenida():
     print('\n')
     print('####################################################')
-    print('################# RICKY INVESTING ##################')
+    print('################# INVESTING ##################')
     print('####################################################')
     print('\n')
 
@@ -90,97 +90,36 @@ def matcor(df,desv):
     l = len(cor)
     sheet_estr2[0,l+2].value = cor
     return cor
-'''
-def optimizador(medias, desv, varcov):
-    #print(medias)
-    x_vec = []
-    #for i in medias:
-    #    x_vec.append(f'x{medias.index(i)}')
-    for i in medias:
-        x_vec.append(i/sum(medias))
 
-    
-    solver = pywraplp.Solver.CreateSolver('SCIP')
-
-    # variables = []
-    # for i in x_vec:
-    #     variables.append(solver.NumVar(0,1,f'x{x_vec.index(i)}'))
-    
-    variables = []
-    for i in x_vec:
-        variables.append(solver.NumVar(0,1,f'x{x_vec.index(i)}'))
-
-    #pesos = pd.DataFrame(variables)
-    #var_p = np.dot(np.dot(pd.DataFrame(variables).T,varcov),pd.DataFrame(variables))
-    lt = []
-    for i in variables:
-        lt.append([i])
-    variablesT = np.array(lt)
-    print('######################')
-    var_p = np.dot(np.dot(variables,varcov),variablesT)
-    print(var_p)
-    std_p = np.sqrt(var_p)
-
-    rend_p = sum(medias[i] * variables[i] for i in range(0,len(medias)))
-    
-
-    #solver.Maximize((sum(medias[i] * variables[i] for i in range(0,len(medias)))))
-    solver.Maximize(rend_p/np.sqrt(np.dot(np.dot(variables,varcov),variablesT)))
-    #solver.Maximize(std_p)
-    #solver.Maximize(rend_p/std_p)
-    #suma_var = sum(variables)
-    solver.Add( sum(variables) == 1)
-    #solver.Add( i for i in range(0,len(variables)) >= 0.2)
-
-
-    status = solver.Solve()
-
-    print(medias)
-
-    for i in variables:
-        print(i.solution_value())
-    
-    print(rend_p)
-    #print(std_p)
-
-'''
 def simulaciones(medias, desv, varcov,n):
     ret_p = []
     vol_p = []
+    pesos_p = []
 
-    for i in range(3000):
+    for i in range(6000):
         pesos = np.random.random(n)
         pesos /= np.sum(pesos)
         ret_p.append(np.sum(medias*pesos)*252)
         vol_p.append(np.sqrt(np.dot(pesos.T,np.dot(varcov*252,pesos))))
+        pesos_p.append(np.round(pesos,2))
     
     ret_p = np.array(ret_p)
     vol_p = np.array(vol_p)
- 
+    concentrado = np.array([ret_p,vol_p,ret_p/vol_p,pesos_p])
+    sim = pd.DataFrame(concentrado).T
+    sim.columns = ['Retorno','Volatilidad','Sharpe','Pesos']
+    print(sim.head())
+    print('######### Esta es tu mejor distribución del portafolio ###########')
+    optimo = sim[sim['Sharpe']==sim['Sharpe'].max()]
+    print(optimo)
+    
+    
     plt.figure(figsize=(10,7))
     plt.scatter(vol_p,ret_p, c=ret_p/vol_p, marker='o')
     plt.grid(True)
+    plt.title(f'Mejor combinación de pesos: {optimo.iloc[:,3]}')
     plt.xlabel('Volatilidad')
     plt.ylabel('Retornos')
-    plt.colorbar(cmap='plasma',label='Shape Ratio')
+    plt.colorbar(cmap='plasma',label='Sharpe Ratio')
     plt.show()
-
-
-    #print(ret_p[:5])
-    #print(vol_p[:5])
-    print('Aqui termina el grafico')
-    #return pesos
-
-def pstats(pesos,medias,varcov):
-    pesos = np.array(pesos)
-    #pesos = np.random.random(n)
-    #pesos /= np.sum(pesos)
-    ret_p = np.sum(medias*pesos)*252
-    vol_p = np.sqrt(np.dot(pesos.T,np.dot(varcov*252,pesos)))
-    return np.array(ret_p/vol_p)
-
-def optimizador(pesos,medias,varcov):
-    
-    return -1*pstats(pesos,medias,varcov)
-
 
